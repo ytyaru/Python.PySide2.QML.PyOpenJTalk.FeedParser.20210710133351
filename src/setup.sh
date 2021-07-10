@@ -34,6 +34,7 @@ Run() {
 		pip install Cython
 		pip install six
 		pip install simpleaudio
+		pip install feedparser
 
 		# ソースコードを取得する
 		cd "$HERE"
