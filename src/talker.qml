@@ -5,11 +5,14 @@ import QtQuick.Controls 2.0
 //import QtWebView 1.15
 import QtQuick.Layouts 1.0
 import QtWebKit 3.0
+//import QtWebEngine 1.10
+//import QtWebEngine 1.0
+//sudo apt install -y qml-module-qtwebengine
 
 ApplicationWindow {
     id: mainWindow
-    width: 500
-    height: 50
+    width: 600
+    height: 200
     title: qsTr("Qt + PySide2 + PyOpenJTalk")
     visible: true
     locale: locale
@@ -22,7 +25,8 @@ ApplicationWindow {
 //            Layout.preferredWidth: 40
 //            Layout.preferredHeight: 40
             Layout.fillWidth: true
-            Layout.fillHeight: true
+//            Layout.fillHeight: true
+            Layout.preferredHeight: 40
             TextInput {
                 id: _talkText
                 text: "発話したいテキストを入力してからEnterキーを押してください。"
@@ -37,7 +41,8 @@ ApplicationWindow {
             color: "#DDCCFF"
 //            anchors.fill: parent
             Layout.fillWidth: true
-            Layout.fillHeight: true
+//            Layout.fillHeight: true
+            Layout.preferredHeight: 40
             TextInput {
                 id: _rssUrl
                 text: "https://news.yahoo.co.jp/rss/topics/top-picks.xml"
@@ -45,15 +50,24 @@ ApplicationWindow {
                 KeyNavigation.tab: _talkText
                 font.pixelSize: Math.max(16, parent.width / 80)
                 anchors.fill: parent
-                onAccepted: Connect.talk_news(_rssUrl.text)
+//                onAccepted: Connect.talk_news(_rssUrl.text)
+                onAccepted: {
+//                    _webview.html = '<p>自作HTML</p>'
+//                    _webview.setHtml('<p>自作HTML</p>')
+//                    _webview.html = Connect.make_html(_rssUrl.text)
+                    _webview.loadHtml(Connect.make_html(_rssUrl.text))
+                    Connect.talk_news(_rssUrl.text)
+                }
             }
         }
+        WebView {
+            id: _webview
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            url: "https://www.google.co.jp/"
+//            html: "<a href='https://www.google.co.jp/'>タイトル</a>"
+        }
+        /*
+        */
     }
-    /*
-    WebView {
-        id: resultwebview
-        anchors.fill: parent
-        url: "https://www.google.co.jp/"
-    }
-    */
 }
