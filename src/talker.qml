@@ -56,7 +56,7 @@ ApplicationWindow {
 //                    _webview.setHtml('<p>自作HTML</p>')
 //                    _webview.html = Connect.make_html(_rssUrl.text)
                     _webview.loadHtml(Connect.make_html(_rssUrl.text))
-                    Connect.talk_news(_rssUrl.text)
+//                    Connect.talk_news(_rssUrl.text)
                 }
             }
         }
@@ -64,8 +64,44 @@ ApplicationWindow {
             id: _webview
             Layout.fillWidth: true
             Layout.fillHeight: true
-            url: "https://www.google.co.jp/"
-//            html: "<a href='https://www.google.co.jp/'>タイトル</a>"
+//            url: "https://www.google.co.jp/"
+//            canGoBack: true
+//            canGoFoword: true
+            onLoadingChanged: {
+                if (loadRequest.status == WebView.LoadStartedStatus) {
+                    console.log("Load start: " + loadRequest.url)
+                } else if (loadRequest.status == WebView.LoadSucceededStatus) {
+                    console.log("Load succeeded: " + loadRequest.url)
+                    Connect.talk_news(_rssUrl.text)
+                } else if (loadRequest.status == WebView.LoadFailedStatus) {
+                    console.log("Load failed: " + loadRequest.url + ". Error code: " + loadRequest.errorString)   
+                }
+            }
+            Keys.onPressed: {
+                switch(event.key){
+                case Qt.Key_Home:
+                    _webview.goBack()
+                    console.debug("Key=" + event.key + ",text=[Home],accepted=" + event.accepted);
+                    break;
+                case Qt.Key_End:
+                    _webview.goFoword()
+                    console.debug("Key=" + event.key + ",text=[End],accepted=" + event.accepted);
+                    break;
+                case Qt.Key_Space:
+                    _webview.goFoword()
+                    console.debug("Key=" + event.key + ",text=[Space],accepted=" + event.accepted);
+                    break;
+                case Qt.Key_Backspace:
+                    _webview.goBack()
+                    console.debug("Key=" + event.key + ",text=[BkSp],accepted=" + event.accepted);
+                    break;
+                default:
+                    console.debug("Key=" + event.key + ",text=" + event.text + ",accepted=" + event.accepted);
+                    break;
+                }
+                // これでイベントが到達しなくなる
+                //event.accepted = true;
+            }
         }
         /*
         */

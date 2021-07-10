@@ -15,22 +15,8 @@ class Connect(QObject):
         super().__init__(parent)
         self.__ply = None
         self.__feed = None
-        self.__thread = AudioProcess()
-        self.__thread.playThread.connect(self.__talk)
-        self.__thread.finished.connect(self.__finished)
-    def __finished(self):
-        if self.__ply and self.__ply.is_playing():
-            self.__ply.stop()
-            self.__ply = None
-    def start(self):
-        if not self.__thread.isRunning():
-            self.__thread.restart()
-        self.__thread.start()
     @Slot(str)
-    def talk(self, text):
-#        self.__talk_async(text)
-        self.start()
-#        self.__thread.playThread.emit(text)
+    def talk(self, text): self.__talk_async(text)
     def __talk_async(self, text):
         x, sr = pyopenjtalk.tts(text)
         if self.__ply and self.__ply.is_playing():
@@ -74,8 +60,8 @@ class Connect(QObject):
         return html
 
 
-class AudioProcess(QThread):
-    playThread = Signal(str)
+class TestProcess(QThread):
+    printThread = Signal(str)
     def __init__(self, parent=None):
         QThread.__init__(self, parent)
         self.mutex = QMutex()
@@ -91,14 +77,10 @@ class AudioProcess(QThread):
             self.stopped = False
     def run(self):
         countNum = 0
-        self.playThread.emit('スレッドのテストです。')
-#        print('スレッドのテストです。')
-        """
         while not self.stopped:
-            self.playThread.emit(str(countNum))
+            self.printThread.emit(str(countNum))
             countNum += 1
             time.sleep(1)
-        """
 
 def Main():
     app = QApplication(sys.argv)
