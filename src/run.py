@@ -9,28 +9,14 @@ import simpleaudio as sa
 import feedparser
 import pprint
 
-ENGINE = None
 class Connect(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.__ply = None
         self.__feed = None
-        self.__thread = AudioProcess()
-        self.__thread.playThread.connect(self.__talk)
-        self.__thread.finished.connect(self.__finished)
-    def __finished(self):
-        if self.__ply and self.__ply.is_playing():
-            self.__ply.stop()
-            self.__ply = None
-    def start(self):
-        if not self.__thread.isRunning():
-            self.__thread.restart()
-        self.__thread.start()
     @Slot(str)
     def talk(self, text):
-#        self.__talk_async(text)
-        self.start()
-#        self.__thread.playThread.emit(text)
+        self.__talk(text)
     def __talk_async(self, text):
         x, sr = pyopenjtalk.tts(text)
         if self.__ply and self.__ply.is_playing():
@@ -54,14 +40,10 @@ class Connect(QObject):
         pprint.pprint(self.__feed['feed'], depth=1)
         news_num = len(self.__feed['entries'])
         print(news_num)
-#        self.__talk_async(f'{news_num}件のニュースがあります。')
         self.__talk(f'{news_num}件のニュースがあります。')
         for entry in self.__feed['entries']:
             pprint.pprint(entry, depth=1)
             self.__talk(entry.title)
-#            self.__talk(entry.summary)
-        """
-        """
     @Slot(str, result=str)
     def make_html(self, url):
         html = ''
@@ -73,43 +55,15 @@ class Connect(QObject):
         html += f'</ul>'
         return html
 
-
-class AudioProcess(QThread):
-    playThread = Signal(str)
-    def __init__(self, parent=None):
-        QThread.__init__(self, parent)
-        self.mutex = QMutex()
-        self.stopped = False
-    def __del__(self):
-        self.stop()
-        self.wait()
-    def stop(self):
-        with QMutexLocker(self.mutex):
-            self.stopped = True
-    def restart(self):
-        with QMutexLocker(self.mutex):
-            self.stopped = False
-    def run(self):
-        countNum = 0
-        self.playThread.emit('スレッドのテストです。')
-#        print('スレッドのテストです。')
-        """
-        while not self.stopped:
-            self.playThread.emit(str(countNum))
-            countNum += 1
-            time.sleep(1)
-        """
-
 def Main():
     app = QApplication(sys.argv)
-    connect = Connect()
     engine = QQmlApplicationEngine()
+    connect = Connect()
     ctx = engine.rootContext()
     ctx.setContextProperty("Connect", connect)
     HERE = os.path.dirname(os.path.abspath(__file__))
     UI = os.path.join(HERE, 'talker.qml')
     engine.load(UI)
-    ENGINE = engine
     if not engine.rootObjects(): sys.exit(-1)
     sys.exit(app.exec_())
 
